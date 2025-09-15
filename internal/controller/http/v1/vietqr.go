@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/ducnpdev/godev-kit/internal/controller/http/v1/request"
-	"github.com/ducnpdev/godev-kit/internal/entity"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/controller/http/v1/request"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/entity"
 )
 
 // @Summary     Generate QR Code

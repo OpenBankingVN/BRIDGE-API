@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/ducnpdev/godev-kit/internal/entity"
-	"github.com/ducnpdev/godev-kit/pkg/kafka"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/entity"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/kafka"
 	"github.com/rs/zerolog"
 )
 

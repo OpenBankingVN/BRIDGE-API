@@ -23,8 +23,8 @@ package main
 import (
 	"log"
 
-	"github.com/ducnpdev/godev-kit/config"
-	"github.com/ducnpdev/godev-kit/internal/app"
+	"github.com/OpenBankingVN/BRIDGE-API/config"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/app"
 )
 
 func main() {

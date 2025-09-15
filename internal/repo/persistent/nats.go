@@ -1,8 +1,8 @@
 package persistent
 
 import (
-	"github.com/ducnpdev/godev-kit/internal/repo"
-	"github.com/ducnpdev/godev-kit/pkg/nats"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/repo"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/nats"
 	natsio "github.com/nats-io/nats.go"
 )
 

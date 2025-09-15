@@ -1,9 +1,9 @@
 package v1
 
 import (
-	v1 "github.com/ducnpdev/godev-kit/docs/proto/v1"
-	"github.com/ducnpdev/godev-kit/internal/usecase"
-	"github.com/ducnpdev/godev-kit/pkg/logger"
+	v1 "github.com/OpenBankingVN/BRIDGE-API/docs/proto/v1"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/usecase"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/logger"
 	"github.com/go-playground/validator/v10"
 )
 

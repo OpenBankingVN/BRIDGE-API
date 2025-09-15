@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	v1 "github.com/ducnpdev/godev-kit/docs/proto/v1"
-	"github.com/ducnpdev/godev-kit/internal/controller/grpc/v1/response"
+	v1 "github.com/OpenBankingVN/BRIDGE-API/docs/proto/v1"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/controller/grpc/v1/response"
 )
 
 func (r *V1) GetHistory(ctx context.Context, _ *v1.GetHistoryRequest) (*v1.GetHistoryResponse, error) {

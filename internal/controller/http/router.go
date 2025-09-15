@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ducnpdev/godev-kit/config"
-	_ "github.com/ducnpdev/godev-kit/docs" // Swagger docs
-	"github.com/ducnpdev/godev-kit/internal/controller/http/middleware"
-	v1 "github.com/ducnpdev/godev-kit/internal/controller/http/v1"
+	"github.com/OpenBankingVN/BRIDGE-API/config"
+	_ "github.com/OpenBankingVN/BRIDGE-API/docs" // Swagger docs
+	"github.com/OpenBankingVN/BRIDGE-API/internal/controller/http/middleware"
+	v1 "github.com/OpenBankingVN/BRIDGE-API/internal/controller/http/v1"
 
-	"github.com/ducnpdev/godev-kit/internal/usecase"
-	"github.com/ducnpdev/godev-kit/internal/usecase/billing"
-	"github.com/ducnpdev/godev-kit/internal/usecase/payment"
-	"github.com/ducnpdev/godev-kit/pkg/logger"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/usecase"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/usecase/billing"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/usecase/payment"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

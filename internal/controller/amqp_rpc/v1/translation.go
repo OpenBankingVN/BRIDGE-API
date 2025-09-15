@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ducnpdev/godev-kit/pkg/rabbitmq/rmq_rpc/server"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/rabbitmq/rmq_rpc/server"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 

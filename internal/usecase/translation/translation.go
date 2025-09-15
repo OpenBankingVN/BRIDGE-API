@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ducnpdev/godev-kit/internal/entity"
-	"github.com/ducnpdev/godev-kit/internal/repo"
-	"github.com/ducnpdev/godev-kit/internal/repo/persistent/models"
-	"github.com/ducnpdev/godev-kit/pkg/logger"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/entity"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/repo"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/repo/persistent/models"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/logger"
 )
 
 // UseCase -.

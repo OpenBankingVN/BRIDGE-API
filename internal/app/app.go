@@ -8,26 +8,26 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/ducnpdev/godev-kit/config"
-	"github.com/ducnpdev/godev-kit/internal/controller/http"
-	"github.com/ducnpdev/godev-kit/internal/repo/externalapi"
-	vietqrrepo "github.com/ducnpdev/godev-kit/internal/repo/externalapi/vietqr"
-	"github.com/ducnpdev/godev-kit/internal/repo/persistent"
-	"github.com/ducnpdev/godev-kit/internal/usecase"
-	"github.com/ducnpdev/godev-kit/internal/usecase/billing"
-	natuc "github.com/ducnpdev/godev-kit/internal/usecase/nat"
-	"github.com/ducnpdev/godev-kit/internal/usecase/payment"
-	redisuc "github.com/ducnpdev/godev-kit/internal/usecase/redis"
-	"github.com/ducnpdev/godev-kit/internal/usecase/translation"
-	"github.com/ducnpdev/godev-kit/internal/usecase/user"
-	vietqruc "github.com/ducnpdev/godev-kit/internal/usecase/vietqr"
-	"github.com/ducnpdev/godev-kit/pkg/httpserver"
-	"github.com/ducnpdev/godev-kit/pkg/kafka"
-	"github.com/ducnpdev/godev-kit/pkg/logger"
-	"github.com/ducnpdev/godev-kit/pkg/nats"
-	"github.com/ducnpdev/godev-kit/pkg/postgres"
-	"github.com/ducnpdev/godev-kit/pkg/redis"
-	// amqprpc "github.com/ducnpdev/godev-kit/internal/controller/amqp_rpc"
+	"github.com/OpenBankingVN/BRIDGE-API/config"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/controller/http"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/repo/externalapi"
+	vietqrrepo "github.com/OpenBankingVN/BRIDGE-API/internal/repo/externalapi/vietqr"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/repo/persistent"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/usecase"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/usecase/billing"
+	natuc "github.com/OpenBankingVN/BRIDGE-API/internal/usecase/nat"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/usecase/payment"
+	redisuc "github.com/OpenBankingVN/BRIDGE-API/internal/usecase/redis"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/usecase/translation"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/usecase/user"
+	vietqruc "github.com/OpenBankingVN/BRIDGE-API/internal/usecase/vietqr"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/httpserver"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/kafka"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/logger"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/nats"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/postgres"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/redis"
+	// amqprpc "github.com/OpenBankingVN/BRIDGE-API/internal/controller/amqp_rpc"
 )
 
 // Run creates objects via constructors.
@@ -111,7 +111,7 @@ func Run(cfg *config.Config) {
 
 	// Payment Use Case
 	paymentRepo := persistent.NewPaymentRepo(pg)
-	
+
 	// Only create Kafka producer if enabled
 	var kafkaProducer *kafka.Producer
 	if cfg.Kafka.Control.ProducerEnabled {
@@ -126,7 +126,7 @@ func Run(cfg *config.Config) {
 	var paymentConsumer *payment.PaymentConsumer
 	if cfg.Kafka.Control.ConsumerEnabled {
 		paymentConsumer = payment.NewPaymentConsumer(cfg.Kafka.Brokers, "payment-processor", paymentUseCase, l.ZerologPtr())
-		
+
 		// Start Payment Consumer
 		go func() {
 			if err := paymentConsumer.Start(ctx); err != nil {

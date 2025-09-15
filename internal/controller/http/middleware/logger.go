@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ducnpdev/godev-kit/pkg/logger"
+	"github.com/OpenBankingVN/BRIDGE-API/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 

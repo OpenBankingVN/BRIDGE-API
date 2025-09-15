@@ -1,8 +1,8 @@
 package response
 
 import (
-	v1 "github.com/ducnpdev/godev-kit/docs/proto/v1"
-	"github.com/ducnpdev/godev-kit/internal/entity"
+	v1 "github.com/OpenBankingVN/BRIDGE-API/docs/proto/v1"
+	"github.com/OpenBankingVN/BRIDGE-API/internal/entity"
 )
 
 // NewTranslationHistory -.
