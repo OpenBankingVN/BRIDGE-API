@@ -18,7 +18,7 @@ Your Kafka producer and consumer can now be configured directly from YAML config
 KAFKA:
   BROKERS:
     - localhost:9092
-  GROUP_ID: godev-kit-group
+  GROUP_ID: bridge-api-group
   TOPICS:
     USER_EVENTS: dev.user-events
     TRANSLATION_EVENTS: dev.translation-events

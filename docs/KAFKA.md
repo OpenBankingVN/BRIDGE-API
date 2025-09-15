@@ -20,7 +20,7 @@ Add Kafka configuration to your `config/config.yaml`:
 KAFKA:
   BROKERS:
     - localhost:9092
-  GROUP_ID: godev-kit-group
+  GROUP_ID: bridge-api-group
   TOPICS:
     USER_EVENTS: user-events
     TRANSLATION_EVENTS: translation-events

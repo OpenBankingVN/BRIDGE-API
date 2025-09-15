@@ -160,7 +160,7 @@ func (uc *UseCase) Login(ctx context.Context, email, password string) (string, e
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "godev-kit",
+			Issuer:    "bridge-api",
 			Subject:   fmt.Sprintf("%d", user.ID),
 		},
 	}

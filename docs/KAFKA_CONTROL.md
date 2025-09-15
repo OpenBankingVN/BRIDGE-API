@@ -237,7 +237,7 @@ curl http://localhost:10000/api/v1/kafka/status
 KAFKA:
   BROKERS:
     - localhost:9092
-  GROUP_ID: godev-kit-group
+  GROUP_ID: bridge-api-group
   # Control can be managed via API endpoints
 ```
 
