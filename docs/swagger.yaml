@@ -1,0 +1,1175 @@
+basePath: /
+definitions:
+  entity.ShipperLocation:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+      shipper_id:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  entity.Translation:
+    properties:
+      destination:
+        example: en
+        type: string
+      original:
+        example: текст для перевода
+        type: string
+      source:
+        example: auto
+        type: string
+      translation:
+        example: text for translation
+        type: string
+    type: object
+  entity.TranslationHistory:
+    properties:
+      history:
+        items:
+          $ref: '#/definitions/entity.Translation'
+        type: array
+    type: object
+  entity.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  entity.UserHistory:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/entity.User'
+        type: array
+    type: object
+  entity.VietQR:
+    properties:
+      content:
+        type: string
+      id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.VietQRStatus'
+    type: object
+  entity.VietQRStatus:
+    enum:
+    - generated
+    - in-process
+    - paid
+    - fail
+    - timeout
+    type: string
+    x-enum-varnames:
+    - VietQRStatusGenerated
+    - VietQRStatusInProcess
+    - VietQRStatusPaid
+    - VietQRStatusFail
+    - VietQRStatusTimeout
+  request.CreateUser:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+      username:
+        example: johndoe
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  request.GenerateInvoicePDFRequest:
+    properties:
+      bank_details:
+        items:
+          type: string
+        type: array
+      billed_to:
+        items:
+          type: string
+        type: array
+      company_info:
+        items:
+          type: string
+        type: array
+      date:
+        type: string
+      discount:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/request.InvoiceItem'
+        type: array
+      number:
+        type: string
+      subtotal:
+        type: string
+      tax:
+        type: string
+      tax_rate:
+        type: string
+      terms:
+        type: string
+      total:
+        type: string
+    type: object
+  request.InvoiceItem:
+    properties:
+      amount:
+        type: string
+      description:
+        type: string
+      qty:
+        type: string
+      unit_cost:
+        type: string
+    type: object
+  request.KafkaMessage:
+    properties:
+      key:
+        type: string
+      topic:
+        type: string
+      value: {}
+    required:
+    - topic
+    - value
+    type: object
+  request.LoginUser:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.NatsPublishRequest:
+    properties:
+      data:
+        type: string
+    type: object
+  request.PaymentRequest:
+    description: Payment request for electric bill
+    properties:
+      amount:
+        example: 500000
+        type: number
+      currency:
+        example: VND
+        type: string
+      customer_code:
+        example: CUST001
+        type: string
+      description:
+        example: Thanh toán tiền điện tháng 12/2024
+        type: string
+      meter_number:
+        example: EVN001234567
+        type: string
+      payment_method:
+        example: bank_transfer
+        type: string
+      payment_type:
+        example: electric
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    required:
+    - amount
+    - currency
+    - customer_code
+    - meter_number
+    - payment_method
+    - payment_type
+    - user_id
+    type: object
+  request.RedisValue:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    required:
+    - key
+    - value
+    type: object
+  request.ShipperLocation:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+      shipper_id:
+        type: string
+      timestamp:
+        type: string
+    required:
+    - latitude
+    - longitude
+    - shipper_id
+    type: object
+  request.Translate:
+    properties:
+      destination:
+        example: en
+        type: string
+      original:
+        example: godev
+        type: string
+      source:
+        example: auto
+        type: string
+    required:
+    - destination
+    - original
+    - source
+    type: object
+  request.UpdateUser:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+      username:
+        example: johndoe
+        minLength: 3
+        type: string
+    type: object
+  request.UpdateVietQRStatus:
+    properties:
+      status:
+        type: string
+    required:
+    - status
+    type: object
+  response.Error:
+    properties:
+      error:
+        example: message
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        example: error_type
+        type: string
+      message:
+        example: error_message
+        type: string
+    type: object
+  response.GenerateInvoicePDFResponse:
+    properties:
+      file_path:
+        type: string
+    type: object
+  response.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        properties:
+          email:
+            type: string
+          id:
+            type: integer
+          username:
+            type: string
+        type: object
+    type: object
+  response.PaymentResponse:
+    description: Payment response with all payment details
+    properties:
+      amount:
+        example: 500000
+        type: number
+      created_at:
+        example: "2024-12-20T10:30:00Z"
+        type: string
+      currency:
+        example: VND
+        type: string
+      customer_code:
+        example: CUST001
+        type: string
+      description:
+        example: Thanh toán tiền điện tháng 12/2024
+        type: string
+      id:
+        example: 1
+        type: integer
+      meter_number:
+        example: EVN001234567
+        type: string
+      payment_method:
+        example: bank_transfer
+        type: string
+      payment_type:
+        example: electric
+        type: string
+      status:
+        example: pending
+        type: string
+      transaction_id:
+        example: uuid-here
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  response.RedisValue:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
+  response.Success:
+    properties:
+      message:
+        example: operation completed successfully
+        type: string
+    type: object
+host: localhost:10000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A comprehensive API template with translation, user management, Kafka,
+    Redis, NATS, VietQR, and Payment services
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Go Dev Kit Template API
+  version: "1.0"
+paths:
+  /translation/do-translate:
+    post:
+      consumes:
+      - application/json
+      description: Translate a text
+      operationId: do-translate
+      parameters:
+      - description: Set up translation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.Translate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Translation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Translate
+      tags:
+      - translation
+  /translation/history:
+    get:
+      consumes:
+      - application/json
+      description: Show all translation history
+      operationId: history
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TranslationHistory'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Show history
+      tags:
+      - translation
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user with email and password
+      operationId: login-user
+      parameters:
+      - description: Login user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Login user
+      tags:
+      - auth
+  /v1/billing/invoice:
+    post:
+      consumes:
+      - application/json
+      description: Generate a billing payment PDF
+      operationId: generate-invoice-pdf
+      parameters:
+      - description: Invoice data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.GenerateInvoicePDFRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.GenerateInvoicePDFResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Generate Invoice PDF
+      tags:
+      - billing
+  /v1/kafka/consumer/receiver:
+    get:
+      consumes:
+      - application/json
+      description: Receive a message from a Kafka topic and group
+      parameters:
+      - description: Kafka topic
+        in: query
+        name: topic
+        required: true
+        type: string
+      - description: Kafka group
+        in: query
+        name: group
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "504":
+          description: Gateway Timeout
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Receive a message from a Kafka topic and group
+      tags:
+      - kafka
+  /v1/kafka/producer/request:
+    post:
+      consumes:
+      - application/json
+      description: Send a message to a Kafka topic
+      parameters:
+      - description: Kafka message
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.KafkaMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Send a message to a Kafka topic
+      tags:
+      - kafka
+  /v1/nats/publish/{subject}:
+    post:
+      consumes:
+      - application/json
+      description: Publish a message to a NATS subject
+      operationId: nats-publish
+      parameters:
+      - description: NATS subject
+        in: path
+        name: subject
+        required: true
+        type: string
+      - description: Message data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NatsPublishRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Publish message
+      tags:
+      - nats
+  /v1/nats/subscribe/{subject}:
+    get:
+      consumes:
+      - application/json
+      description: 'Subscribe to a NATS subject (demo: returns first message)'
+      operationId: nats-subscribe
+      parameters:
+      - description: NATS subject
+        in: path
+        name: subject
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Subscribe to subject
+      tags:
+      - nats
+  /v1/payments:
+    post:
+      consumes:
+      - application/json
+      description: Register a new payment for electric bill and send to Kafka for
+        processing
+      parameters:
+      - description: Payment request
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/request.PaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.PaymentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Register a new payment
+      tags:
+      - payments
+  /v1/payments/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get payment details by ID
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PaymentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get payment by ID
+      tags:
+      - payments
+  /v1/redis/get/{key}:
+    get:
+      consumes:
+      - application/json
+      description: Get a value from Redis by key
+      operationId: get-value
+      parameters:
+      - description: Key
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RedisValue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get value
+      tags:
+      - redis
+  /v1/redis/set:
+    post:
+      consumes:
+      - application/json
+      description: Set a key-value pair in Redis
+      operationId: set-value
+      parameters:
+      - description: Set value
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RedisValue'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Set value
+      tags:
+      - redis
+  /v1/redis/shipper/location:
+    post:
+      consumes:
+      - application/json
+      description: Update the latest location of a shipper in Redis
+      operationId: update-shipper-location
+      parameters:
+      - description: Shipper location
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ShipperLocation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Update shipper location
+      tags:
+      - redis
+  /v1/redis/shipper/location/{shipper_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get the latest location of a shipper from Redis
+      operationId: get-shipper-location
+      parameters:
+      - description: Shipper ID
+        in: path
+        name: shipper_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ShipperLocation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get shipper location
+      tags:
+      - redis
+  /v1/user:
+    get:
+      consumes:
+      - application/json
+      description: Get all users
+      operationId: list-users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.UserHistory'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: List users
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      operationId: create-user
+      parameters:
+      - description: Create user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Create user
+      tags:
+      - user
+  /v1/user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user by ID
+      operationId: delete-user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - user
+    get:
+      consumes:
+      - application/json
+      description: Get user by ID
+      operationId: get-user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get user
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: Update user by ID
+      operationId: update-user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - user
+  /v1/users/{user_id}/payments:
+    get:
+      consumes:
+      - application/json
+      description: Get all payments for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.PaymentResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get payments by user ID
+      tags:
+      - payments
+  /v1/vietqr/gen:
+    post:
+      consumes:
+      - application/json
+      description: Generate a new VietQR code
+      operationId: generate-qr
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.VietQR'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Generate QR Code
+      tags:
+      - vietqr
+  /v1/vietqr/inquiry/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get the status of a VietQR code
+      operationId: inquiry-qr
+      parameters:
+      - description: QR ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.VietQR'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Inquiry QR Status
+      tags:
+      - vietqr
+  /v1/vietqr/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update the status of a VietQR code
+      operationId: update-qr-status
+      parameters:
+      - description: QR ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateVietQRStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Update QR Status
+      tags:
+      - vietqr
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
