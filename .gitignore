@@ -39,6 +39,6 @@ docker-compose.yml
 Dockerfile
 README_CN.md
 README_RU.md
-
+.DS_Store
 # 
 cmd/app/config/config.yaml
