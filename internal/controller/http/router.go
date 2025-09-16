@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/OpenBankingVN/BRIDGE-API/config"
-	_ "github.com/OpenBankingVN/BRIDGE-API/docs" // Swagger docs
 	"github.com/OpenBankingVN/BRIDGE-API/internal/controller/http/middleware"
 	v1 "github.com/OpenBankingVN/BRIDGE-API/internal/controller/http/v1"
 
