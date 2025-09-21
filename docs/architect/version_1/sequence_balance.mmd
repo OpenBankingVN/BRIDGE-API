@@ -1,0 +1,29 @@
+%% Balance Query Flow: Bank/User check balances
+sequenceDiagram
+    participant User as User/Client
+    participant BridgeAPI as Bridge API
+    participant DB as Database
+    participant BankAPI as Banking API<br/>(Open Banking/PSD2)
+    participant Bank as Bank System
+    participant Ethereum as Ethereum Network
+
+    User->>BridgeAPI: GET /api/v1/balance?user_id=...
+    
+    Note over BridgeAPI, Bank: 1. Fetch Fiat Balance
+    BridgeAPI->>BankAPI: GET /api/v1/banking/balance {user_id}
+    BankAPI->>Bank: Query account balance
+    Bank-->>BankAPI: Fiat balance
+    BankAPI-->>BridgeAPI: Fiat balance data
+
+    Note over BridgeAPI, Ethereum: 2. Fetch Crypto Balance
+    alt custodial account
+        BridgeAPI->>DB: Query crypto balances from ledgers
+        DB-->>BridgeAPI: aggregated crypto balance
+    else non-custodial
+        BridgeAPI->>Ethereum: eth_call(balanceOf)
+        Ethereum-->>BridgeAPI: token balance
+    end
+
+    Note over BridgeAPI, User: 3. Aggregate & Return
+    BridgeAPI->>BridgeAPI: Aggregate fiat + crypto balances
+    BridgeAPI-->>User: {fiat_balance, crypto_balance, total_balance}

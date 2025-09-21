@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRIDGE-API Flow Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #555;
+            border-bottom: 2px solid #007acc;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        .diagram {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .mermaid {
+            text-align: center;
+        }
+        .description {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007acc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 BRIDGE-API Flow Diagrams</h1>
+        
+        <div class="description">
+            <strong>Overview:</strong> These diagrams illustrate the complete banking-to-crypto bridge flows, including proper banking integration layers, compliance checks, and event-driven processing between traditional banking systems and blockchain networks.
+        </div>
+
+        <h2>💰 Balance Query Flow</h2>
+        <div class="description">
+            <strong>Purpose:</strong> Shows how users can query their complete account balances, including both fiat (from banking system) and crypto (from blockchain) balances with proper banking integration.
+        </div>
+        <div class="diagram">
+            <div class="mermaid">
+                %% Balance Query Flow: Bank/User check balances
+                sequenceDiagram
+                    participant User as User/Client
+                    participant BridgeAPI as Bridge API
+                    participant DB as Database
+                    participant BankAPI as Banking API<br/>(Open Banking/PSD2)
+                    participant Bank as Bank System
+                    participant Ethereum as Ethereum Network
+
+                    User->>BridgeAPI: GET /api/v1/balance?user_id=...
+                    
+                    Note over BridgeAPI, Bank: 1. Fetch Fiat Balance
+                    BridgeAPI->>BankAPI: GET /api/v1/banking/balance {user_id}
+                    BankAPI->>Bank: Query account balance
+                    Bank-->>BankAPI: Fiat balance
+                    BankAPI-->>BridgeAPI: Fiat balance data
+
+                    Note over BridgeAPI, Ethereum: 2. Fetch Crypto Balance
+                    alt custodial account
+                        BridgeAPI->>DB: Query crypto balances from ledgers
+                        DB-->>BridgeAPI: aggregated crypto balance
+                    else non-custodial
+                        BridgeAPI->>Ethereum: eth_call(balanceOf)
+                        Ethereum-->>BridgeAPI: token balance
+                    end
+
+                    Note over BridgeAPI, User: 3. Aggregate & Return
+                    BridgeAPI->>BridgeAPI: Aggregate fiat + crypto balances
+                    BridgeAPI-->>User: {fiat_balance, crypto_balance, total_balance}
+            </div>
+        </div>
+
+        <h2>📥 Deposit Flow</h2>
+        <div class="description">
+            <strong>Purpose:</strong> Illustrates the complete deposit process from bank to blockchain, including banking integration, compliance checks, event-driven processing, and transaction settlement.
+        </div>
+        <div class="diagram">
+            <div class="mermaid">
+                %% Deposit Flow: Bank -> Bridge -> Core Chain
+                sequenceDiagram
+                    participant Bank as Bank System
+                    participant BankAPI as Banking API<br/>(Open Banking/PSD2)
+                    participant BridgeAPI as Bridge API
+                    participant DB as Database
+                    participant Kafka as Kafka
+                    participant Worker as Bridge Worker
+                    participant Vault as Vault/HSM
+                    participant Ethereum as Ethereum Network
+
+                    Note over Bank, Ethereum: 1. Initiate Deposit Request
+                    Bank->>BankAPI: POST /api/v1/deposits {bank_ref, amount, account}
+                    BankAPI->>BankAPI: Validate bank account<br/>Check KYC/AML
+                    BankAPI->>BridgeAPI: POST /api/v1/bridge/deposits {bank_ref, amount, user_id}
+                    
+                    Note over BridgeAPI, DB: 2. Bridge Processing
+                    BridgeAPI->>DB: Insert ledger (status=PENDING)
+                    BridgeAPI->>Kafka: Publish DepositEvent
+                    BridgeAPI-->>BankAPI: 202 ACCEPTED {bridge_ref}
+                    BankAPI-->>Bank: 202 ACCEPTED {bridge_ref}
+
+                    Note over Worker, Ethereum: 3. Crypto Processing
+                    Worker->>DB: SELECT ledger FOR UPDATE
+                    Worker->>Vault: Sign mint transaction
+                    Vault-->>Worker: Signed Tx
+                    Worker->>Ethereum: SendRawTransaction(signedTx)
+                    Ethereum-->>Worker: txHash
+                    Worker->>DB: Update ledger, insert tx
+
+                    Note over Worker, Bank: 4. Settlement & Notification
+                    Worker->>BankAPI: Callback {status=SETTLED, bridge_ref}
+                    BankAPI->>BankAPI: Update bank ledger
+                    BankAPI-->>Bank: Callback {status=SETTLED, bank_ref}
+            </div>
+        </div>
+
+        <h2>📤 Withdraw Flow</h2>
+        <div class="description">
+            <strong>Purpose:</strong> Shows the withdrawal process from blockchain back to traditional banking, including banking integration, compliance checks, token burning, and bank payout coordination.
+        </div>
+        <div class="diagram">
+            <div class="mermaid">
+                %% Withdraw Flow: User Redeem -> Bank Payout
+                sequenceDiagram
+                    participant User as User/Client
+                    participant BridgeAPI as Bridge API
+                    participant DB as Database
+                    participant Kafka as Kafka
+                    participant Worker as Bridge Worker
+                    participant Vault as Vault/HSM
+                    participant Ethereum as Ethereum Network
+                    participant BankAPI as Banking API<br/>(Open Banking/PSD2)
+                    participant Bank as Bank System
+
+                    Note over User, Bank: 1. Initiate Withdrawal Request
+                    User->>BridgeAPI: POST /api/v1/withdraw {amount, toBankAcc, user_id}
+                    BridgeAPI->>DB: Insert ledger (status=PENDING)
+                    BridgeAPI->>Kafka: Publish WithdrawEvent
+                    BridgeAPI-->>User: 202 ACCEPTED {bridge_ref}
+
+                    Note over Worker, Ethereum: 2. Crypto Burn Processing
+                    Worker->>DB: SELECT ledger FOR UPDATE
+                    Worker->>Vault: Sign burn transaction
+                    Vault-->>Worker: Signed Tx
+                    Worker->>Ethereum: SendRawTransaction(signedTx)
+                    Ethereum-->>Worker: txHash
+                    Worker->>DB: Update tx/ledger (status=PROCESSING)
+
+                    Note over Worker, Bank: 3. Bank Payout Processing
+                    Worker->>BankAPI: POST /api/v1/banking/payout {amount, account, bridge_ref}
+                    BankAPI->>BankAPI: Validate account<br/>Check compliance
+                    BankAPI->>Bank: Initiate bank transfer
+                    Bank-->>BankAPI: Transfer confirmation
+                    BankAPI-->>Worker: Payout success
+
+                    Note over Worker, User: 4. Settlement & Notification
+                    Worker->>DB: Mark ledger SETTLED
+                    Worker->>User: Callback {status=SETTLED, bridge_ref}
+            </div>
+        </div>
+
+        <h2>🏗️ System Architecture</h2>
+        <div class="description">
+            <strong>Purpose:</strong> High-level overview of the BRIDGE-API system components and their interactions, including the banking integration layer.
+        </div>
+        <div class="diagram">
+            <div class="mermaid">
+                graph TB
+                    subgraph "Bank System"
+                        Bank[Bank System<br/>Deposit/Withdraw]
+                    end
+                    
+                    subgraph "Banking Integration Layer"
+                        BankAPI[Banking API<br/>Open Banking/PSD2<br/>KYC/AML Compliance]
+                    end
+                    
+                    subgraph "Bridge API Layer"
+                        API[Bridge API<br/>Go HTTP Server]
+                        Kafka[Kafka<br/>Event Streaming]
+                        Worker[Bridge Worker<br/>consume events,<br/>sign+broadcast tx]
+                    end
+                    
+                    subgraph "Data Layer"
+                        DB[(Postgres<br/>Ledger, Tx)]
+                        Audit[Audit Logs]
+                    end
+                    
+                    subgraph "Blockchain Layer"
+                        Vault[Vault/HSM<br/>sign tx]
+                        Ethereum[Ethereum RPC<br/>Sepolia]
+                    end
+                    
+                    Bank -->|REST API<br/>mTLS + JWT| BankAPI
+                    BankAPI -->|REST API<br/>mTLS + JWT| API
+                    API --> DB
+                    API --> Kafka
+                    Kafka --> Worker
+                    Worker --> DB
+                    Worker --> Vault
+                    Worker --> Ethereum
+                    Worker -->|Callback| BankAPI
+                    DB --> Audit
+            </div>
+        </div>
+
+        <div class="description">
+            <strong>Key Components:</strong>
+            <ul>
+                <li><strong>Banking API:</strong> Open Banking/PSD2 integration with KYC/AML compliance</li>
+                <li><strong>Bridge API:</strong> Main HTTP server handling REST API requests</li>
+                <li><strong>Kafka:</strong> Event streaming for asynchronous processing</li>
+                <li><strong>Worker:</strong> Background service processing blockchain transactions</li>
+                <li><strong>Vault/HSM:</strong> Secure key management for transaction signing</li>
+                <li><strong>PostgreSQL:</strong> Ledger and transaction storage</li>
+                <li><strong>Ethereum:</strong> Blockchain network (Sepolia testnet)</li>
+            </ul>
+        </div>
+
+        <h2>🔐 Security & Compliance Features</h2>
+        <div class="description">
+            <strong>Purpose:</strong> Overview of the security and compliance features built into the banking-to-crypto bridge system.
+        </div>
+        <div class="diagram">
+            <div class="mermaid">
+                graph LR
+                    subgraph "Security Layer"
+                        Auth[JWT Authentication]
+                        MTLS[mTLS Encryption]
+                        Vault[Vault/HSM<br/>Key Management]
+                    end
+                    
+                    subgraph "Compliance Layer"
+                        KYC[KYC Verification]
+                        AML[AML Screening]
+                        Audit[Audit Logging]
+                        Reporting[Regulatory Reporting]
+                    end
+                    
+                    subgraph "Banking Integration"
+                        OpenBanking[Open Banking API]
+                        PSD2[PSD2 Compliance]
+                        BankValidation[Bank Account Validation]
+                    end
+                    
+                    Auth --> KYC
+                    MTLS --> OpenBanking
+                    Vault --> Audit
+                    KYC --> AML
+                    AML --> Reporting
+                    OpenBanking --> PSD2
+                    PSD2 --> BankValidation
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            },
+            sequence: {
+                diagramMarginX: 50,
+                diagramMarginY: 10,
+                actorMargin: 50,
+                width: 150,
+                height: 65,
+                boxMargin: 10,
+                boxTextMargin: 5,
+                noteMargin: 10,
+                messageMargin: 35
+            }
+        });
+    </script>
+</body>
+</html>

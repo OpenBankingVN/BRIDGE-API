@@ -1,0 +1,36 @@
+%% Withdraw Flow: User Redeem -> Bank Payout
+sequenceDiagram
+    participant User as User/Client
+    participant BridgeAPI as Bridge API
+    participant DB as Database
+    participant Kafka as Kafka
+    participant Worker as Bridge Worker
+    participant Vault as Vault/HSM
+    participant Ethereum as Ethereum Network
+    participant BankAPI as Banking API<br/>(Open Banking/PSD2)
+    participant Bank as Bank System
+
+    Note over User, Bank: 1. Initiate Withdrawal Request
+    User->>BridgeAPI: POST /api/v1/withdraw {amount, toBankAcc, user_id}
+    BridgeAPI->>DB: Insert ledger (status=PENDING)
+    BridgeAPI->>Kafka: Publish WithdrawEvent
+    BridgeAPI-->>User: 202 ACCEPTED {bridge_ref}
+
+    Note over Worker, Ethereum: 2. Crypto Burn Processing
+    Worker->>DB: SELECT ledger FOR UPDATE
+    Worker->>Vault: Sign burn transaction
+    Vault-->>Worker: Signed Tx
+    Worker->>Ethereum: SendRawTransaction(signedTx)
+    Ethereum-->>Worker: txHash
+    Worker->>DB: Update tx/ledger (status=PROCESSING)
+
+    Note over Worker, Bank: 3. Bank Payout Processing
+    Worker->>BankAPI: POST /api/v1/banking/payout {amount, account, bridge_ref}
+    BankAPI->>BankAPI: Validate account<br/>Check compliance
+    BankAPI->>Bank: Initiate bank transfer
+    Bank-->>BankAPI: Transfer confirmation
+    BankAPI-->>Worker: Payout success
+
+    Note over Worker, User: 4. Settlement & Notification
+    Worker->>DB: Mark ledger SETTLED
+    Worker->>User: Callback {status=SETTLED, bridge_ref}

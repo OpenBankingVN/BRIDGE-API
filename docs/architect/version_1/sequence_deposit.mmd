@@ -1,0 +1,34 @@
+%% Deposit Flow: Bank -> Bridge -> Core Chain
+sequenceDiagram
+    participant Bank as Bank System
+    participant BankAPI as Banking API<br/>(Open Banking/PSD2)
+    participant BridgeAPI as Bridge API
+    participant DB as Database
+    participant Kafka as Kafka
+    participant Worker as Bridge Worker
+    participant Vault as Vault/HSM
+    participant Ethereum as Ethereum Network
+
+    Note over Bank, Ethereum: 1. Initiate Deposit Request
+    Bank->>BankAPI: POST /api/v1/deposits {bank_ref, amount, account}
+    BankAPI->>BankAPI: Validate bank account<br/>Check KYC/AML
+    BankAPI->>BridgeAPI: POST /api/v1/bridge/deposits {bank_ref, amount, user_id}
+    
+    Note over BridgeAPI, DB: 2. Bridge Processing
+    BridgeAPI->>DB: Insert ledger (status=PENDING)
+    BridgeAPI->>Kafka: Publish DepositEvent
+    BridgeAPI-->>BankAPI: 202 ACCEPTED {bridge_ref}
+    BankAPI-->>Bank: 202 ACCEPTED {bridge_ref}
+
+    Note over Worker, Ethereum: 3. Crypto Processing
+    Worker->>DB: SELECT ledger FOR UPDATE
+    Worker->>Vault: Sign mint transaction
+    Vault-->>Worker: Signed Tx
+    Worker->>Ethereum: SendRawTransaction(signedTx)
+    Ethereum-->>Worker: txHash
+    Worker->>DB: Update ledger, insert tx
+
+    Note over Worker, Bank: 4. Settlement & Notification
+    Worker->>BankAPI: Callback {status=SETTLED, bridge_ref}
+    BankAPI->>BankAPI: Update bank ledger
+    BankAPI-->>Bank: Callback {status=SETTLED, bank_ref}
