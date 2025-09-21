@@ -1,34 +1,44 @@
-%% Deposit Flow: Bank -> Bridge -> Core Chain
+%% Deposit Flow: User -> Bridge -> Bank -> Crypto
 sequenceDiagram
-    participant Bank as Bank System
-    participant BankAPI as Banking API<br/>(Open Banking/PSD2)
+    participant User as User/Client
     participant BridgeAPI as Bridge API
     participant DB as Database
+    participant BankAPI as Banking API<br/>(Open Banking/PSD2)
+    participant Bank as Bank System
     participant Kafka as Kafka
     participant Worker as Bridge Worker
     participant Vault as Vault/HSM
     participant Ethereum as Ethereum Network
 
-    Note over Bank, Ethereum: 1. Initiate Deposit Request
-    Bank->>BankAPI: POST /api/v1/deposits {bank_ref, amount, account}
-    BankAPI->>BankAPI: Validate bank account<br/>Check KYC/AML
-    BankAPI->>BridgeAPI: POST /api/v1/bridge/deposits {bank_ref, amount, user_id}
-    
-    Note over BridgeAPI, DB: 2. Bridge Processing
-    BridgeAPI->>DB: Insert ledger (status=PENDING)
-    BridgeAPI->>Kafka: Publish DepositEvent
-    BridgeAPI-->>BankAPI: 202 ACCEPTED {bridge_ref}
-    BankAPI-->>Bank: 202 ACCEPTED {bridge_ref}
+    Note over User, Ethereum: 1. User Requests Deposit Address
+    User->>BridgeAPI: POST /api/v1/deposits/request {user_id, amount}
+    BridgeAPI->>DB: Create deposit record (status=PENDING)
+    BridgeAPI->>BankAPI: GET /api/v1/banking/deposit-address {user_id}
+    BankAPI->>Bank: Generate unique deposit account
+    Bank-->>BankAPI: Deposit account details
+    BankAPI-->>BridgeAPI: {deposit_account, reference_id}
+    BridgeAPI->>DB: Update deposit record with account
+    BridgeAPI-->>User: {deposit_account, reference_id, amount}
 
-    Note over Worker, Ethereum: 3. Crypto Processing
-    Worker->>DB: SELECT ledger FOR UPDATE
+    Note over User, Bank: 2. User Transfers Money
+    User->>Bank: Transfer money to deposit_account
+    Bank->>Bank: Process transfer
+    Bank-->>User: Transfer confirmation
+
+    Note over Bank, BridgeAPI: 3. Bridge Monitors Transfer
+    Bank->>BankAPI: Transfer event notification
+    BankAPI->>BankAPI: Validate transfer details
+    BankAPI->>BridgeAPI: POST /api/v1/banking/transfer-event {reference_id, amount, status}
+    BridgeAPI->>DB: Update deposit record (status=CONFIRMED)
+    BridgeAPI->>Kafka: Publish DepositConfirmedEvent
+
+    Note over Worker, Ethereum: 4. Crypto Processing
+    Worker->>DB: SELECT deposit record FOR UPDATE
     Worker->>Vault: Sign mint transaction
     Vault-->>Worker: Signed Tx
     Worker->>Ethereum: SendRawTransaction(signedTx)
     Ethereum-->>Worker: txHash
-    Worker->>DB: Update ledger, insert tx
+    Worker->>DB: Update deposit record, insert tx (status=SETTLED)
 
-    Note over Worker, Bank: 4. Settlement & Notification
-    Worker->>BankAPI: Callback {status=SETTLED, bridge_ref}
-    BankAPI->>BankAPI: Update bank ledger
-    BankAPI-->>Bank: Callback {status=SETTLED, bank_ref}
+    Note over Worker, User: 5. Settlement & Notification
+    Worker->>User: Callback {status=SETTLED, txHash, crypto_amount}

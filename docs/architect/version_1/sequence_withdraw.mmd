@@ -1,36 +1,41 @@
-%% Withdraw Flow: User Redeem -> Bank Payout
+%% Withdraw Flow: User -> Bridge -> Bank -> Blockchain
 sequenceDiagram
     participant User as User/Client
     participant BridgeAPI as Bridge API
     participant DB as Database
+    participant BankAPI as Banking API<br/>(Open Banking/PSD2)
+    participant Bank as Bank System
     participant Kafka as Kafka
     participant Worker as Bridge Worker
     participant Vault as Vault/HSM
     participant Ethereum as Ethereum Network
-    participant BankAPI as Banking API<br/>(Open Banking/PSD2)
-    participant Bank as Bank System
 
-    Note over User, Bank: 1. Initiate Withdrawal Request
-    User->>BridgeAPI: POST /api/v1/withdraw {amount, toBankAcc, user_id}
-    BridgeAPI->>DB: Insert ledger (status=PENDING)
-    BridgeAPI->>Kafka: Publish WithdrawEvent
-    BridgeAPI-->>User: 202 ACCEPTED {bridge_ref}
+    Note over User, Ethereum: 1. User Requests Withdrawal
+    User->>BridgeAPI: POST /api/v1/withdraw {user_id, amount, to_address}
+    BridgeAPI->>DB: Create withdraw record (status=PENDING)
+    BridgeAPI->>BankAPI: GET /api/v1/banking/balance {user_id}
+    BankAPI->>Bank: Query user balance
+    Bank-->>BankAPI: Current balance
+    BankAPI-->>BridgeAPI: Balance data
+    BridgeAPI->>BridgeAPI: Validate sufficient balance
+    BridgeAPI-->>User: 202 ACCEPTED {withdraw_ref, estimated_crypto_amount}
 
-    Note over Worker, Ethereum: 2. Crypto Burn Processing
-    Worker->>DB: SELECT ledger FOR UPDATE
-    Worker->>Vault: Sign burn transaction
+    Note over BridgeAPI, Bank: 2. Bridge Deducts Bank Balance
+    BridgeAPI->>BankAPI: POST /api/v1/banking/deduct {user_id, amount, withdraw_ref}
+    BankAPI->>BankAPI: Validate account & compliance
+    BankAPI->>Bank: Deduct user balance
+    Bank-->>BankAPI: Deduction confirmation
+    BankAPI-->>BridgeAPI: Balance deducted successfully
+    BridgeAPI->>DB: Update withdraw record (status=CONFIRMED)
+    BridgeAPI->>Kafka: Publish WithdrawConfirmedEvent
+
+    Note over Worker, Ethereum: 3. Bridge Transfers Crypto
+    Worker->>DB: SELECT withdraw record FOR UPDATE
+    Worker->>Vault: Sign transfer transaction {to_address, amount}
     Vault-->>Worker: Signed Tx
     Worker->>Ethereum: SendRawTransaction(signedTx)
     Ethereum-->>Worker: txHash
-    Worker->>DB: Update tx/ledger (status=PROCESSING)
-
-    Note over Worker, Bank: 3. Bank Payout Processing
-    Worker->>BankAPI: POST /api/v1/banking/payout {amount, account, bridge_ref}
-    BankAPI->>BankAPI: Validate account<br/>Check compliance
-    BankAPI->>Bank: Initiate bank transfer
-    Bank-->>BankAPI: Transfer confirmation
-    BankAPI-->>Worker: Payout success
+    Worker->>DB: Update withdraw record, insert tx (status=SETTLED)
 
     Note over Worker, User: 4. Settlement & Notification
-    Worker->>DB: Mark ledger SETTLED
-    Worker->>User: Callback {status=SETTLED, bridge_ref}
+    Worker->>User: Callback {status=SETTLED, txHash, crypto_amount, to_address}
