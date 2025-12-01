@@ -28,7 +28,10 @@ func main() {
 	}
 
 	// 2. Địa chỉ ví MetaMask của bạn
-	address := common.HexToAddress("0x661Fa55d705bB7894c3a0D17408885c78F460f06")
+	address := common.HexToAddress(cfg.Ethereum.Address)
+	if err != nil {
+		log.Fatal("Failed to convert address:", err)
+	}
 
 	// 3. Lấy balance
 	balance, err := client.BalanceAt(context.Background(), address, nil)
