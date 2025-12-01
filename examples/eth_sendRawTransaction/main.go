@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/OpenBankingVN/BRIDGE-API/config"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -16,14 +17,18 @@ import (
 )
 
 func main() {
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
 	// 1. Kết nối tới Sepolia RPC
-	client, err := ethclient.Dial("https://eth-sepolia.g.alchemy.com/v2/xxx")
+	client, err := ethclient.Dial(cfg.Ethereum.SepoliaRPCURL)
 	if err != nil {
 		log.Fatalf("failed to connect to Sepolia RPC: %v", err)
 	}
 
 	// 2. Import private key của ví MetaMask (đang có 0.2 ETH testnet)
-	privateKey, err := crypto.HexToECDSA("")
+	privateKey, err := crypto.HexToECDSA(cfg.Ethereum.PrivateKey)
 	if err != nil {
 		log.Fatalf("failed to parse private key: %v", err)
 	}
@@ -58,7 +63,7 @@ func main() {
 	maxFeePerGas.Add(maxFeePerGas, gasTipCap)
 
 	// 6. Thông tin giao dịch
-	toEnv := "0xADDRESS"
+	toEnv := "0x0938e4766ae1e8d66c8df770c7fd87455e2559ce"
 	if toEnv == "" {
 		log.Fatal("TO_ADDRESS is not set. Export your EOA recipient address (hex)")
 	}
