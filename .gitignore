@@ -45,3 +45,5 @@ README_RU.md
 cmd/app/config/config.yaml
 
 config/config.yaml
+
+examples/ethereum-watcher
