@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/ecdsa"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/big"
@@ -68,9 +69,28 @@ func main() {
 		log.Fatal("TO_ADDRESS is not set. Export your EOA recipient address (hex)")
 	}
 	toAddress := common.HexToAddress(toEnv) // địa chỉ nhận ETH
-	value := big.NewInt(10000000000000000)  // 0.0001 ETH (đơn vị Wei)
-	var data []byte                         // tx ETH thường không cần data
-	// gasLimit := uint64(21000)            // Gas chuẩn cho transfer ETH
+	value := big.NewInt(20000000000000000)  // 0.0001 ETH (đơn vị Wei)
+
+	// Payload JSON muốn gửi kèm transaction (sẽ nằm trong field Data)
+	payload := map[string]interface{}{
+		"name":        "DucNguyen",
+		"age":         27,
+		"email":       "ducnp09081998@gmail.com",
+		"nationality": "Vietnamese",
+		"address": map[string]interface{}{
+			"street": "A",
+			"city":   "HCM City",
+			"state":  "VN",
+			"zip":    "700000",
+		},
+		"phone":      "033-528-xxxx",
+		"occupation": "Software Engineer",
+		"education":  "Bachelor of Science in Computer Science",
+	}
+	data, err := json.Marshal(payload)
+	if err != nil {
+		log.Fatalf("failed to marshal JSON payload: %v", err)
+	}
 
 	// Cảnh báo nếu đích là contract (có thể không nhận ETH trực tiếp)
 	code, err := client.CodeAt(ctx, toAddress, nil)
