@@ -26,7 +26,7 @@ PG:
   MAX_CONN_LIFETIME: 30m
   MAX_CONN_IDLE_TIME: 10m
   HEALTH_CHECK_PERIOD: 1m
-  URL: "postgres://godevkit:1@localhost:5433/godevkit?sslmode=disable"
+  URL: "postgres://1:1@localhost:5432/1?sslmode=disable"
 
 REDIS:
   URL: "redis://localhost:6379/0"
@@ -66,3 +66,15 @@ SWAGGER:
 
 JWT:
   SECRET: "123"
+
+# Ethereum Configuration
+ETHEREUM:
+  SEPOLIA_RPC_URL: ""
+  PRIVATE_KEY: ""
+  PUBLIC_KEY: ""
+  ADDRESS: ""
+  CONTRACTS:
+    # Common Sepolia testnet token addresses
+    # USDC: ""  # USDC on Sepolia
+    # USDT: ""  # USDT on Sepolia
+    # DAI: ""   # DAI on Sepolia

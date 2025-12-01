@@ -135,6 +135,9 @@ type (
 	// Ethereum -.
 	Ethereum struct {
 		SepoliaRPCURL string            `mapstructure:"SEPOLIA_RPC_URL"`
+		PrivateKey    string            `mapstructure:"PRIVATE_KEY"`
+		PublicKey     string            `mapstructure:"PUBLIC_KEY"`
+		Address       string            `mapstructure:"ADDRESS"`
 		Contracts     map[string]string `mapstructure:"CONTRACTS"`
 	}
 )
