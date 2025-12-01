@@ -63,14 +63,13 @@ func main() {
 	maxFeePerGas.Add(maxFeePerGas, gasTipCap)
 
 	// 6. Thông tin giao dịch
-	toEnv := "0x0938e4766ae1e8d66c8df770c7fd87455e2559ce"
+	toEnv := cfg.Ethereum.ToAddress
 	if toEnv == "" {
 		log.Fatal("TO_ADDRESS is not set. Export your EOA recipient address (hex)")
 	}
 	toAddress := common.HexToAddress(toEnv) // địa chỉ nhận ETH
-	value := big.NewInt(12000000000000000)  // 0.012 ETH (đơn vị Wei)
-	// value := big.NewInt(100000000000000) // 0.0001 ETH (đơn vị Wei)
-	var data []byte // tx ETH thường không cần data
+	value := big.NewInt(10000000000000000)  // 0.0001 ETH (đơn vị Wei)
+	var data []byte                         // tx ETH thường không cần data
 	// gasLimit := uint64(21000)            // Gas chuẩn cho transfer ETH
 
 	// Cảnh báo nếu đích là contract (có thể không nhận ETH trực tiếp)

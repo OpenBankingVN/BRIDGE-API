@@ -138,6 +138,7 @@ type (
 		PrivateKey    string            `mapstructure:"PRIVATE_KEY"`
 		PublicKey     string            `mapstructure:"PUBLIC_KEY"`
 		Address       string            `mapstructure:"ADDRESS"`
+		ToAddress     string            `mapstructure:"TO_ADDRESS"`
 		Contracts     map[string]string `mapstructure:"CONTRACTS"`
 	}
 )
