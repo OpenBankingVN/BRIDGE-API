@@ -50,7 +50,10 @@ func main() {
 	}
 
 	// Your target address
-	targetAddressStr := "0xA7cF451F98b565dfd15274A90B502a74F59008f0"
+	targetAddressStr := cfg.Ethereum.ToAddress
+	if err != nil {
+		log.Fatalf("Failed to convert address: %v", err)
+	}
 	targetAddr := common.HexToAddress(targetAddressStr)
 
 	fmt.Printf("🎯 Target Address: %s\n", targetAddr.Hex())

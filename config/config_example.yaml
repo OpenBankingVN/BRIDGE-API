@@ -73,6 +73,7 @@ ETHEREUM:
   PRIVATE_KEY: ""
   PUBLIC_KEY: ""
   ADDRESS: ""
+  TO_ADDRESS: ""
   CONTRACTS:
     # Common Sepolia testnet token addresses
     # USDC: ""  # USDC on Sepolia
